@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "44603276985",
+    "project_id": "backtocampus-18ee0",
+    "storage_bucket": "backtocampus-18ee0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:44603276985:android:7f711b5fd3013a89f9e568",
+        "android_client_info": {
+          "package_name": "com.example.back_2_campus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAJe_-P2d4ASUBH7qFVSZ4OiqhvVYEefg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
