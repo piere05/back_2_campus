@@ -5,7 +5,13 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  debugPrint('🚀 App started');
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  debugPrint('🔥 Firebase initialized');
+
   runApp(const MyApp());
 }
 
@@ -29,35 +35,56 @@ class FirestoreTestPage extends StatefulWidget {
 }
 
 class _FirestoreTestPageState extends State<FirestoreTestPage> {
+  String status = 'Testing Firestore connection...';
+
   @override
   void initState() {
     super.initState();
+    debugPrint('📦 FirestoreTestPage loaded');
     testFirestoreConnection();
   }
 
   Future<void> testFirestoreConnection() async {
     try {
-      await FirebaseFirestore.instance
-          .collection('connection_test')
-          .doc('test')
-          .set({
-            'status': 'connected',
-            'time': DateTime.now().toIso8601String(),
-          });
+      debugPrint('🧪 Writing to Firestore...');
 
-      print('✅ Firestore connected successfully');
-    } catch (e) {
-      print('❌ Firestore connection failed: $e');
+      DocumentReference ref = await FirebaseFirestore.instance
+          .collection('connection_test')
+          .add({'status': 'connected', 'time': Timestamp.now()});
+
+      debugPrint('📄 Document written: ${ref.id}');
+
+      debugPrint('🧪 Reading from Firestore...');
+
+      DocumentSnapshot snap = await ref.get();
+
+      debugPrint('📥 Read data: ${snap.data()}');
+
+      setState(() {
+        status = '✅ Firestore CONNECTED\nDocument ID:\n${ref.id}';
+      });
+    } catch (e, s) {
+      debugPrint('❌ Firestore FAILED');
+      debugPrint(e.toString());
+      debugPrint(s.toString());
+
+      setState(() {
+        status = '❌ Firestore FAILED\n$e';
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
-        child: Text(
-          'Check console logs for Firestore status',
-          style: TextStyle(fontSize: 18),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Text(
+            status,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 18),
+          ),
         ),
       ),
     );

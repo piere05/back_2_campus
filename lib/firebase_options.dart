@@ -83,4 +83,5 @@ class DefaultFirebaseOptions {
     authDomain: 'backtocampus-18ee0.firebaseapp.com',
     storageBucket: 'backtocampus-18ee0.firebasestorage.app',
   );
+
 }
