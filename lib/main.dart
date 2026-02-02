@@ -1,91 +1,74 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'firebase_options.dart';
+import 'login_page.dart';
+import 'student/student_dashboard.dart';
+import 'staff/staff_dashboard.dart';
+import 'hod/hod_dashboard.dart';
+import 'alumni/alumni_dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  debugPrint('🚀 App started');
-
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  debugPrint('🔥 Firebase initialized');
-
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: FirestoreTestPage(),
-    );
-  }
-}
+  Future<Widget> _getHome() async {
+    final user = FirebaseAuth.instance.currentUser;
 
-class FirestoreTestPage extends StatefulWidget {
-  const FirestoreTestPage({super.key});
-
-  @override
-  State<FirestoreTestPage> createState() => _FirestoreTestPageState();
-}
-
-class _FirestoreTestPageState extends State<FirestoreTestPage> {
-  String status = 'Testing Firestore connection...';
-
-  @override
-  void initState() {
-    super.initState();
-    debugPrint('📦 FirestoreTestPage loaded');
-    testFirestoreConnection();
-  }
-
-  Future<void> testFirestoreConnection() async {
-    try {
-      debugPrint('🧪 Writing to Firestore...');
-
-      DocumentReference ref = await FirebaseFirestore.instance
-          .collection('connection_test')
-          .add({'status': 'connected', 'time': Timestamp.now()});
-
-      debugPrint('📄 Document written: ${ref.id}');
-
-      debugPrint('🧪 Reading from Firestore...');
-
-      DocumentSnapshot snap = await ref.get();
-
-      debugPrint('📥 Read data: ${snap.data()}');
-
-      setState(() {
-        status = '✅ Firestore CONNECTED\nDocument ID:\n${ref.id}';
-      });
-    } catch (e, s) {
-      debugPrint('❌ Firestore FAILED');
-      debugPrint(e.toString());
-      debugPrint(s.toString());
-
-      setState(() {
-        status = '❌ Firestore FAILED\n$e';
-      });
+    // not logged in
+    if (user == null) {
+      return const LoginPage();
     }
+
+    final email = user.email!;
+
+    Future<bool> existsIn(String col) async {
+      final snap = await FirebaseFirestore.instance
+          .collection(col)
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+      return snap.docs.isNotEmpty;
+    }
+
+    if (await existsIn('students')) {
+      return const StudentDashboard();
+    }
+    if (await existsIn('staff')) {
+      return const StaffDashboard();
+    }
+    if (await existsIn('hod')) {
+      return const HodDashboard();
+    }
+    if (await existsIn('alumni')) {
+      return const AlumniDashboard();
+    }
+
+    // logged in but no role
+    await FirebaseAuth.instance.signOut();
+    return const LoginPage();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text(
-            status,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 18),
-          ),
-        ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: FutureBuilder<Widget>(
+        future: _getHome(),
+        builder: (context, snap) {
+          if (!snap.hasData) {
+            // NO loading UI, just white
+            return const Scaffold(backgroundColor: Colors.white);
+          }
+          return snap.data!;
+        },
       ),
     );
   }
