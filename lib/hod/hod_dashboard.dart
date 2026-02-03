@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'hod_layout.dart';
+import 'hod_list_students_page.dart';
 import 'list_alumni.dart';
 import 'list_staff_page.dart';
 
@@ -230,7 +231,8 @@ class HodDashboard extends StatelessWidget {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) => const ListStaffPage(),
+                                          builder: (_) =>
+                                              const HodListStudentsPage(),
                                         ),
                                       );
                                     },

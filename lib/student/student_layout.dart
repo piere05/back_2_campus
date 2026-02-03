@@ -4,33 +4,29 @@ import 'package:flutter/material.dart';
 
 import '../logout.dart';
 
-// STAFF PAGES (adjust imports if names differ)
-import 'add_student.dart';
-import 'list_alumini.dart';
-import 'list_student.dart';
-import 'staff_add_edit_notification.dart';
-import 'staff_change_password_page.dart';
-import 'staff_dashboard.dart';
-import 'staff_notification.dart';
-import 'staff_notification_list.dart';
-import 'staff_profile_page.dart';
+// STUDENT PAGES
+import 'student_change_password_page.dart';
+import 'student_dashboard.dart';
+import 'student_interested_job_internship_page.dart';
+import 'student_job_internship_list_page.dart';
+import 'student_notification.dart';
+import 'student_profile_page.dart';
 
-class StaffLayout extends StatefulWidget {
+class StudentLayout extends StatefulWidget {
   final Widget child;
 
-  const StaffLayout({super.key, required this.child});
+  const StudentLayout({super.key, required this.child});
 
   @override
-  State<StaffLayout> createState() => _StaffLayoutState();
+  State<StudentLayout> createState() => _StudentLayoutState();
 }
 
-class _StaffLayoutState extends State<StaffLayout> {
+class _StudentLayoutState extends State<StudentLayout> {
   int _bottomIndex = 0;
 
-  // ===== STAFF COLORS (NO LAVENDER) =====
-  final Color primary = const Color(0xFF064E3B); // dark teal
-  final Color accent = const Color(0xFF0D9488); // emerald
-  final Color bg = const Color(0xFFF5F7FA); // clean light grey
+  // ===== STUDENT COLORS =====
+  final Color primary = const Color(0xFF1E3A8A); // deep blue
+  final Color bg = const Color(0xFFF5F7FA);
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +39,7 @@ class _StaffLayoutState extends State<StaffLayout> {
         elevation: 0.5,
         iconTheme: const IconThemeData(color: Colors.black),
         title: const Text(
-          'Staff Dashboard',
+          'Student Dashboard',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
         ),
       ),
@@ -76,83 +72,42 @@ class _StaffLayoutState extends State<StaffLayout> {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const StaffDashboard()),
-                    );
-                  }),
-
-                  // ===== MANAGE NOTIFICATION =====
-                  ExpansionTile(
-                    leading: Icon(Icons.notifications, color: primary),
-                    title: const Text('Manage Notification'),
-                    childrenPadding: const EdgeInsets.only(left: 20),
-                    children: [
-                      _subMenuItem('Add Notification', () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                const StaffAddEditNotificationPage(),
-                          ),
-                        );
-                      }),
-                      _subMenuItem('List Notification', () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const StaffNotificationListPage(),
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-
-                  // ===== MANAGE STUDENTS =====
-                  ExpansionTile(
-                    leading: Icon(Icons.school, color: primary),
-                    title: const Text('Manage Students'),
-                    childrenPadding: const EdgeInsets.only(left: 20),
-                    children: [
-                      _subMenuItem('Add Student', () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const StaffAddEditStudentPage(),
-                          ),
-                        );
-                      }),
-                      _subMenuItem('List Students', () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const StaffListStudentsPage(),
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-
-                  // ===== VIEW ALUMNI =====
-                  _menuItem(Icons.people, 'View Alumni', () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
                       MaterialPageRoute(
-                        builder: (_) => const StaffViewAlumniTablePage(),
+                        builder: (_) => const StudentDashboard(),
                       ),
                     );
                   }),
 
-                  // ===== CHANGE PASSWORD =====
+                  _menuItem(Icons.work, 'View Job / Internship', () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const StudentJobInternshipListPage(),
+                      ),
+                    );
+                  }),
+
+                  _menuItem(
+                    Icons.card_giftcard,
+                    'Interested Job / Internship',
+                    () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const StudentInterestedJobInternshipPage(),
+                        ),
+                      );
+                    },
+                  ),
                   _menuItem(Icons.lock, 'Change Password', () {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const StaffChangePasswordPage(),
+                        builder: (_) => const StudentChangePasswordPage(),
                       ),
                     );
                   }),
@@ -187,7 +142,7 @@ class _StaffLayoutState extends State<StaffLayout> {
             if (index == 0) {
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (_) => const StaffDashboard()),
+                MaterialPageRoute(builder: (_) => const StudentDashboard()),
                 (route) => false,
               );
               return;
@@ -197,7 +152,7 @@ class _StaffLayoutState extends State<StaffLayout> {
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const StaffNotificationPage(),
+                  builder: (_) => const StudentNotificationPage(),
                 ),
                 (route) => false,
               );
@@ -207,7 +162,7 @@ class _StaffLayoutState extends State<StaffLayout> {
             if (index == 2) {
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (_) => const StaffProfilePage()),
+                MaterialPageRoute(builder: (_) => const StudentProfilePage()),
                 (route) => false,
               );
               return;
@@ -252,18 +207,11 @@ class _StaffLayoutState extends State<StaffLayout> {
     }
   }
 
-  // ================= MENU HELPERS =================
+  // ================= MENU HELPER =================
   Widget _menuItem(IconData icon, String title, VoidCallback onTap) {
     return ListTile(
       leading: Icon(icon, color: primary),
       title: Text(title),
-      onTap: onTap,
-    );
-  }
-
-  Widget _subMenuItem(String title, VoidCallback onTap) {
-    return ListTile(
-      title: Text(title, style: const TextStyle(fontSize: 14)),
       onTap: onTap,
     );
   }

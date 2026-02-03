@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'dart:convert';
 
@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'hod_layout.dart';
+import 'list_job_intership.dart';
 
 class AddEditJobInternshipPage extends StatefulWidget {
   final String? docId;
@@ -32,7 +33,7 @@ class _AddEditJobInternshipPageState extends State<AddEditJobInternshipPage> {
   String type = 'job';
   String status = 'ongoing';
 
-  String? imageBase64; // ✅ image stored here
+  String? imageBase64;
 
   final picker = ImagePicker();
   final email = FirebaseAuth.instance.currentUser!.email!;
@@ -52,7 +53,7 @@ class _AddEditJobInternshipPageState extends State<AddEditJobInternshipPage> {
       descCtrl.text = d['description'] ?? '';
       contactCtrl.text = d['contact'] ?? '';
 
-      imageBase64 = d['image_base64']; // ✅ load image on edit
+      imageBase64 = d['image_base64'];
     }
   }
 
@@ -69,7 +70,6 @@ class _AddEditJobInternshipPageState extends State<AddEditJobInternshipPage> {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 20),
-
           Expanded(
             child: SingleChildScrollView(
               child: Form(
@@ -115,12 +115,8 @@ class _AddEditJobInternshipPageState extends State<AddEditJobInternshipPage> {
                     _gap(),
                     _field(contactCtrl, 'Contact'),
                     _gap(),
-
-                    /// 🔥 IMAGE FIELD
                     _imagePicker(),
-
                     const SizedBox(height: 30),
-
                     SizedBox(
                       width: double.infinity,
                       height: 48,
@@ -149,7 +145,6 @@ class _AddEditJobInternshipPageState extends State<AddEditJobInternshipPage> {
     );
   }
 
-  /// ✅ WEB + MOBILE SAFE IMAGE PICK
   Future<void> pickImage() async {
     final XFile? img = await picker.pickImage(
       source: ImageSource.gallery,
@@ -158,7 +153,7 @@ class _AddEditJobInternshipPageState extends State<AddEditJobInternshipPage> {
 
     if (img == null) return;
 
-    final bytes = await img.readAsBytes(); // ✅ no dart:io
+    final bytes = await img.readAsBytes();
     setState(() {
       imageBase64 = base64Encode(bytes);
     });
@@ -193,8 +188,29 @@ class _AddEditJobInternshipPageState extends State<AddEditJobInternshipPage> {
     );
   }
 
+  // 🔹 FETCH DEPARTMENT FROM HOD DOC
+  Future<String?> _fetchHodDepartment() async {
+    final snap = await FirebaseFirestore.instance
+        .collection('hod')
+        .where('email', isEqualTo: email)
+        .limit(1)
+        .get();
+
+    if (snap.docs.isEmpty) return null;
+    return snap.docs.first['department'];
+  }
+
   Future<void> save() async {
     if (!_formKey.currentState!.validate()) return;
+
+    final department = await _fetchHodDepartment();
+
+    if (department == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('HOD department not found')));
+      return;
+    }
 
     final payload = {
       'type': type,
@@ -204,9 +220,10 @@ class _AddEditJobInternshipPageState extends State<AddEditJobInternshipPage> {
       'role': roleCtrl.text.trim(),
       'description': descCtrl.text.trim(),
       'contact': contactCtrl.text.trim(),
-      'image_base64': imageBase64, // ✅ saved here
+      'image_base64': imageBase64,
       'created_by': 'hod',
       'created_email': email,
+      'department': department, // ✅ ADDED
       'updated_at': Timestamp.now(),
     };
 
@@ -220,6 +237,10 @@ class _AddEditJobInternshipPageState extends State<AddEditJobInternshipPage> {
 
     if (!mounted) return;
     Navigator.pop(context);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const ManageJobInternshipPage()),
+    );
   }
 
   Widget _field(TextEditingController c, String hint, {int max = 1}) {

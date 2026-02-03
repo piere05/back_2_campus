@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="back_2_campus"
+        android:label="Back 2 Campus"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -80,6 +80,7 @@ class _ManageJobInternshipPageState extends State<ManageJobInternshipPage> {
                       DataColumn(label: Text('Company')),
                       DataColumn(label: Text('Role')),
                       DataColumn(label: Text('Contact')),
+                      DataColumn(label: Text('Status')),
                       DataColumn(label: Text('Action')),
                     ],
                     rows: docs.map((d) {
@@ -133,6 +134,15 @@ class _ManageJobInternshipPageState extends State<ManageJobInternshipPage> {
                             ),
                           ),
                           DataCell(
+                            SizedBox(
+                              width: 140,
+                              child: Text(
+                                data['status'] ?? '',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          DataCell(
                             Row(
                               children: [
                                 IconButton(
@@ -167,7 +177,7 @@ class _ManageJobInternshipPageState extends State<ManageJobInternshipPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (_) =>
-                                            const InterestedUsersSamplePage(),
+                                            InterestedUsersPage(jobId: d.id),
                                       ),
                                     );
                                   },

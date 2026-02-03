@@ -54,7 +54,10 @@ class _StaffChangePasswordPageState extends State<StaffChangePasswordPage> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password updated successfully')),
+        const SnackBar(
+          content: Text('Password updated successfully'),
+          backgroundColor: Colors.green,
+        ),
       );
 
       currentPasswordCtrl.clear();
@@ -62,7 +65,10 @@ class _StaffChangePasswordPageState extends State<StaffChangePasswordPage> {
       confirmPasswordCtrl.clear();
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Password update failed')),
+        SnackBar(
+          content: Text(e.message ?? 'Password update failed'),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       if (mounted) setState(() => loading = false);

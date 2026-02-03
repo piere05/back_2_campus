@@ -1,31 +1,32 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-import 'hod_layout.dart';
-import 'list_notification.dart';
+import 'staff_layout.dart';
+import 'staff_notification_list.dart';
 
-class AddEditNotificationPage extends StatefulWidget {
+class StaffAddEditNotificationPage extends StatefulWidget {
   final String? docId;
   final Map<String, dynamic>? data;
 
-  const AddEditNotificationPage({super.key, this.docId, this.data});
+  const StaffAddEditNotificationPage({super.key, this.docId, this.data});
 
   @override
-  State<AddEditNotificationPage> createState() =>
-      _AddEditNotificationPageState();
+  State<StaffAddEditNotificationPage> createState() =>
+      _StaffAddEditNotificationPageState();
 }
 
-class _AddEditNotificationPageState extends State<AddEditNotificationPage> {
+class _StaffAddEditNotificationPageState
+    extends State<StaffAddEditNotificationPage> {
   final _formKey = GlobalKey<FormState>();
 
   final titleCtrl = TextEditingController();
   final descCtrl = TextEditingController();
 
-  String hod_name = '';
-  String department = ''; // ✅ FIX 1: STATE VARIABLE
+  String staff_name = '';
+  String department = ''; // ✅ IMPORTANT
 
   @override
   void initState() {
@@ -37,26 +38,25 @@ class _AddEditNotificationPageState extends State<AddEditNotificationPage> {
       descCtrl.text = d['description'] ?? '';
     }
 
-    _loadHodDetails();
+    _loadStaffDetails();
   }
 
-  // ================= LOAD HOD =================
-  Future<void> _loadHodDetails() async {
+  // ================= LOAD STAFF DETAILS =================
+  Future<void> _loadStaffDetails() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null || user.email == null) return;
 
-    final hodSnap = await FirebaseFirestore.instance
-        .collection('hod')
+    final staffSnap = await FirebaseFirestore.instance
+        .collection('staff')
         .where('email', isEqualTo: user.email)
         .limit(1)
         .get();
 
-    if (hodSnap.docs.isNotEmpty) {
-      final data = hodSnap.docs.first.data();
-
+    if (staffSnap.docs.isNotEmpty) {
+      final data = staffSnap.docs.first.data();
       setState(() {
-        hod_name = data['name'] ?? '';
-        department = data['department'] ?? ''; // ✅ FIX 2
+        staff_name = data['name'] ?? '';
+        department = data['department'] ?? ''; // ✅ FIX
       });
     }
   }
@@ -68,10 +68,10 @@ class _AddEditNotificationPageState extends State<AddEditNotificationPage> {
     final payload = {
       'title': titleCtrl.text.trim(),
       'description': descCtrl.text.trim(),
-      'Createdby': 'HOD',
-      'Createdname': hod_name,
-      'department': department, // ✅ NOW WORKS
+      'Createdby': 'Staff',
+      'Createdname': staff_name,
       'Createdemail': FirebaseAuth.instance.currentUser?.email,
+      'department': department, // ✅ REQUIRED
       'updated_at': Timestamp.now(),
     };
 
@@ -87,14 +87,14 @@ class _AddEditNotificationPageState extends State<AddEditNotificationPage> {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const NotificationListPage()),
+      MaterialPageRoute(builder: (_) => const StaffNotificationListPage()),
     );
   }
 
   // ================= UI =================
   @override
   Widget build(BuildContext context) {
-    return HodLayout(
+    return StaffLayout(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -112,12 +112,13 @@ class _AddEditNotificationPageState extends State<AddEditNotificationPage> {
                 _gap(),
                 _field(descCtrl, 'Description', max: 4),
                 _gap(),
+
                 SizedBox(
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.amber,
+                      backgroundColor: Colors.blue,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
@@ -126,7 +127,7 @@ class _AddEditNotificationPageState extends State<AddEditNotificationPage> {
                     onPressed: save,
                     child: Text(
                       widget.docId == null ? 'Save' : 'Update',
-                      style: const TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
@@ -143,14 +144,14 @@ class _AddEditNotificationPageState extends State<AddEditNotificationPage> {
     return TextFormField(
       controller: c,
       maxLines: max,
-      validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+      validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
       decoration: _dec(label),
     );
   }
 
   InputDecoration _dec(String label) {
     return InputDecoration(
-      labelText: label, // ✅ LABEL (as you prefer)
+      labelText: label, // ✅ labelText as you prefer
       filled: true,
       fillColor: Colors.white,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
