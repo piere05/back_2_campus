@@ -75,6 +75,7 @@ class _ManageJobInternshipPageState extends State<ManageJobInternshipPage> {
                   child: DataTable(
                     columnSpacing: 24,
                     columns: const [
+                      DataColumn(label: Text('Type')),
                       DataColumn(label: Text('Title')),
                       DataColumn(label: Text('Company')),
                       DataColumn(label: Text('Role')),
@@ -86,6 +87,15 @@ class _ManageJobInternshipPageState extends State<ManageJobInternshipPage> {
 
                       return DataRow(
                         cells: [
+                          DataCell(
+                            SizedBox(
+                              width: 160,
+                              child: Text(
+                                data['type'] ?? '',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
                           DataCell(
                             SizedBox(
                               width: 160,

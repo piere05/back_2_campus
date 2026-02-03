@@ -3,48 +3,42 @@
 import 'package:flutter/material.dart';
 
 import '../logout.dart';
-import 'add_edit_sponsorship.dart';
-import 'add_job_intership.dart';
-import 'add_notification.dart';
-import 'add_staff_page.dart';
-import 'change_password_page.dart';
-import 'hod_dashboard.dart';
-import 'hod_profile_page.dart';
-import 'list_alumni.dart';
-import 'list_job_intership.dart';
-import 'list_notification.dart';
-import 'list_sponsorship.dart';
-import 'list_staff_page.dart';
-import 'manage_alumni.dart';
-import 'notification_page.dart';
 
-class HodLayout extends StatefulWidget {
+// STAFF PAGES (adjust imports if names differ)
+import 'staff_change_password_page.dart';
+import 'staff_dashboard.dart';
+import 'staff_notification.dart';
+import 'staff_profile_page.dart';
+
+class StaffLayout extends StatefulWidget {
   final Widget child;
 
-  const HodLayout({super.key, required this.child});
+  const StaffLayout({super.key, required this.child});
 
   @override
-  State<HodLayout> createState() => _HodLayoutState();
+  State<StaffLayout> createState() => _StaffLayoutState();
 }
 
-class _HodLayoutState extends State<HodLayout> {
+class _StaffLayoutState extends State<StaffLayout> {
   int _bottomIndex = 0;
 
-  final Color primary = const Color(0xFF1E3A8A);
-  final Color accent = const Color(0xFF2563EB);
-  final Color bg = const Color(0xFFF4F6FA);
+  // ===== STAFF COLORS (NO LAVENDER) =====
+  final Color primary = const Color(0xFF064E3B); // dark teal
+  final Color accent = const Color(0xFF0D9488); // emerald
+  final Color bg = const Color(0xFFF5F7FA); // clean light grey
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bg,
 
+      // ================= APP BAR =================
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
         iconTheme: const IconThemeData(color: Colors.black),
         title: const Text(
-          'HOD Dashboard',
+          'Staff Dashboard',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
         ),
       ),
@@ -59,7 +53,7 @@ class _HodLayoutState extends State<HodLayout> {
               width: double.infinity,
               child: Column(
                 children: [
-                  Image.asset('assets/images/logo.png', height: 120),
+                  Image.asset('assets/images/logo.png', height: 110),
                   const SizedBox(height: 12),
                   const Text(
                     'Back 2 Campus',
@@ -77,46 +71,22 @@ class _HodLayoutState extends State<HodLayout> {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const HodDashboard()),
+                      MaterialPageRoute(builder: (_) => const StaffDashboard()),
                     );
                   }),
 
-                  ExpansionTile(
-                    leading: Icon(Icons.campaign, color: primary),
-                    title: const Text('Manage Staff'),
-                    childrenPadding: const EdgeInsets.only(left: 20),
-                    children: [
-                      _subMenuItem('Add Staff', () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const AddStaffPage(),
-                          ),
-                        );
-                      }),
-                      _subMenuItem('List Staff', () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const ListStaffPage(),
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
+                  // ===== MANAGE NOTIFICATION =====
                   ExpansionTile(
                     leading: Icon(Icons.notifications, color: primary),
                     title: const Text('Manage Notification'),
                     childrenPadding: const EdgeInsets.only(left: 20),
                     children: [
-                      _subMenuItem('Add Notification ', () {
+                      _subMenuItem('Add Notification', () {
                         Navigator.pop(context);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const AddEditNotificationPage(),
+                            builder: (_) => const StaffDashboard(),
                           ),
                         );
                       }),
@@ -125,94 +95,56 @@ class _HodLayoutState extends State<HodLayout> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const NotificationListPage(),
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-                  ExpansionTile(
-                    leading: Icon(Icons.campaign, color: primary),
-                    title: const Text('Manage  Job / Intership'),
-                    childrenPadding: const EdgeInsets.only(left: 20),
-                    children: [
-                      _subMenuItem('Add  Job / Intership', () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const AddEditJobInternshipPage(),
-                          ),
-                        );
-                      }),
-                      _subMenuItem('List  Job / Intership', () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const ManageJobInternshipPage(),
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-                  ExpansionTile(
-                    leading: Icon(Icons.business, color: primary),
-                    title: const Text('Manage Sponsorship'),
-                    childrenPadding: const EdgeInsets.only(left: 20),
-                    children: [
-                      _subMenuItem('Add Sponsorship', () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const AddEditSponsorshipPage(),
-                          ),
-                        );
-                      }),
-                      _subMenuItem('List Sponsorship', () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const ListSponsorshipPage(),
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-                  ExpansionTile(
-                    leading: Icon(Icons.people, color: primary),
-                    title: const Text('Manage Alumni'),
-                    childrenPadding: const EdgeInsets.only(left: 20),
-                    children: [
-                      _subMenuItem('Add Alumni', () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const ManageAlumniPage(),
-                          ),
-                        );
-                      }),
-                      _subMenuItem('List Alumni', () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const ListAlumniPage(),
+                            builder: (_) => const StaffDashboard(),
                           ),
                         );
                       }),
                     ],
                   ),
 
+                  // ===== MANAGE STUDENTS =====
+                  ExpansionTile(
+                    leading: Icon(Icons.school, color: primary),
+                    title: const Text('Manage Students'),
+                    childrenPadding: const EdgeInsets.only(left: 20),
+                    children: [
+                      _subMenuItem('Add Student', () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const StaffDashboard(),
+                          ),
+                        );
+                      }),
+                      _subMenuItem('List Students', () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const StaffDashboard(),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+
+                  // ===== VIEW ALUMNI =====
+                  _menuItem(Icons.people, 'View Alumni', () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const StaffDashboard()),
+                    );
+                  }),
+
+                  // ===== CHANGE PASSWORD =====
                   _menuItem(Icons.lock, 'Change Password', () {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const HodChangePasswordPage(),
+                        builder: (_) => const StaffChangePasswordPage(),
                       ),
                     );
                   }),
@@ -230,13 +162,13 @@ class _HodLayoutState extends State<HodLayout> {
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           boxShadow: [
-            BoxShadow(color: Color.fromARGB(31, 92, 92, 92), blurRadius: 4),
+            BoxShadow(color: Color.fromARGB(30, 0, 0, 0), blurRadius: 4),
           ],
         ),
         child: BottomNavigationBar(
           currentIndex: _bottomIndex,
-          selectedItemColor: const Color.fromARGB(255, 0, 0, 0),
-          unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
+          selectedItemColor: Colors.black,
+          unselectedItemColor: Colors.black,
           type: BottomNavigationBarType.fixed,
           onTap: (index) {
             if (index == 3) {
@@ -247,7 +179,7 @@ class _HodLayoutState extends State<HodLayout> {
             if (index == 0) {
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (_) => const HodDashboard()),
+                MaterialPageRoute(builder: (_) => const StaffDashboard()),
                 (route) => false,
               );
               return;
@@ -256,7 +188,9 @@ class _HodLayoutState extends State<HodLayout> {
             if (index == 1) {
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (_) => const HodNotificationPage()),
+                MaterialPageRoute(
+                  builder: (_) => const StaffNotificationPage(),
+                ),
                 (route) => false,
               );
               return;
@@ -265,16 +199,16 @@ class _HodLayoutState extends State<HodLayout> {
             if (index == 2) {
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (_) => const HodProfilePage()),
+                MaterialPageRoute(builder: (_) => const StaffProfilePage()),
                 (route) => false,
               );
               return;
             }
+
             setState(() {
               _bottomIndex = index;
             });
           },
-
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
             BottomNavigationBarItem(
@@ -293,7 +227,6 @@ class _HodLayoutState extends State<HodLayout> {
   Widget _buildBody() {
     switch (_bottomIndex) {
       case 0:
-        // Home → use passed child (HodDashboard content)
         return widget.child;
 
       case 1:

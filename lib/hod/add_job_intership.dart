@@ -1,8 +1,11 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'hod_layout.dart';
 
@@ -29,23 +32,27 @@ class _AddEditJobInternshipPageState extends State<AddEditJobInternshipPage> {
   String type = 'job';
   String status = 'ongoing';
 
+  String? imageBase64; // ✅ image stored here
+
+  final picker = ImagePicker();
   final email = FirebaseAuth.instance.currentUser!.email!;
 
   @override
   void initState() {
     super.initState();
 
-    /// ✅ SAFE INIT (NO CRASH EVEN IF DATA IS NULL)
     final d = widget.data;
     if (d != null) {
-      type = d['type']?.toString() ?? 'job';
-      status = d['status']?.toString() ?? 'ongoing';
+      type = d['type'] ?? 'job';
+      status = d['status'] ?? 'ongoing';
 
-      titleCtrl.text = d['title']?.toString() ?? '';
-      companyCtrl.text = d['company']?.toString() ?? '';
-      roleCtrl.text = d['role']?.toString() ?? '';
-      descCtrl.text = d['description']?.toString() ?? '';
-      contactCtrl.text = d['contact']?.toString() ?? '';
+      titleCtrl.text = d['title'] ?? '';
+      companyCtrl.text = d['company'] ?? '';
+      roleCtrl.text = d['role'] ?? '';
+      descCtrl.text = d['description'] ?? '';
+      contactCtrl.text = d['contact'] ?? '';
+
+      imageBase64 = d['image_base64']; // ✅ load image on edit
     }
   }
 
@@ -107,6 +114,11 @@ class _AddEditJobInternshipPageState extends State<AddEditJobInternshipPage> {
                     _field(descCtrl, 'Description', max: 4),
                     _gap(),
                     _field(contactCtrl, 'Contact'),
+                    _gap(),
+
+                    /// 🔥 IMAGE FIELD
+                    _imagePicker(),
+
                     const SizedBox(height: 30),
 
                     SizedBox(
@@ -137,6 +149,50 @@ class _AddEditJobInternshipPageState extends State<AddEditJobInternshipPage> {
     );
   }
 
+  /// ✅ WEB + MOBILE SAFE IMAGE PICK
+  Future<void> pickImage() async {
+    final XFile? img = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
+    );
+
+    if (img == null) return;
+
+    final bytes = await img.readAsBytes(); // ✅ no dart:io
+    setState(() {
+      imageBase64 = base64Encode(bytes);
+    });
+  }
+
+  Widget _imagePicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (imageBase64 != null)
+          Container(
+            height: 160,
+            width: double.infinity,
+            margin: const EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              image: DecorationImage(
+                image: MemoryImage(base64Decode(imageBase64!)),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        SizedBox(
+          width: double.infinity,
+          height: 46,
+          child: OutlinedButton(
+            onPressed: pickImage,
+            child: const Text('Select / Change Image'),
+          ),
+        ),
+      ],
+    );
+  }
+
   Future<void> save() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -148,6 +204,7 @@ class _AddEditJobInternshipPageState extends State<AddEditJobInternshipPage> {
       'role': roleCtrl.text.trim(),
       'description': descCtrl.text.trim(),
       'contact': contactCtrl.text.trim(),
+      'image_base64': imageBase64, // ✅ saved here
       'created_by': 'hod',
       'created_email': email,
       'updated_at': Timestamp.now(),

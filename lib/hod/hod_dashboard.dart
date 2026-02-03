@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'hod_layout.dart';
+import 'list_alumni.dart';
+import 'list_staff_page.dart';
 
 class HodDashboard extends StatelessWidget {
   const HodDashboard({super.key});
@@ -82,12 +84,14 @@ class HodDashboard extends StatelessWidget {
                       // 🔹 Dashboard Tiles (Responsive)
                       LayoutBuilder(
                         builder: (context, constraints) {
-                          int crossAxisCount = 1;
+                          int crossAxisCount = 2;
 
                           if (constraints.maxWidth >= 900) {
                             crossAxisCount = 3;
                           } else if (constraints.maxWidth >= 500) {
                             crossAxisCount = 2;
+                          } else if (constraints.maxWidth < 350) {
+                            crossAxisCount = 1; // only ultra-small screens
                           }
 
                           return GridView(
@@ -100,27 +104,138 @@ class HodDashboard extends StatelessWidget {
                                   mainAxisSpacing: 16,
                                   childAspectRatio: 1.6,
                                 ),
+
                             children: [
-                              _dashboardTile(
-                                title: 'Total Staff',
-                                count: '45',
-                                icon: Icons.groups,
-                                color: const Color(0xFF2563EB),
-                                onTap: () {},
+                              StreamBuilder<QuerySnapshot>(
+                                stream: FirebaseFirestore.instance
+                                    .collection('staff')
+                                    .where('hodEmail', isEqualTo: email)
+                                    .snapshots(),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return _dashboardTile(
+                                      title: 'Total Staff',
+                                      count: '0',
+                                      icon: Icons.groups,
+                                      color: const Color(0xFF2563EB),
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                const ListStaffPage(),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }
+
+                                  final count = snapshot.data!.docs.length
+                                      .toString();
+
+                                  return _dashboardTile(
+                                    title: 'Total Staff',
+                                    count: count,
+                                    icon: Icons.groups,
+                                    color: const Color(0xFF2563EB),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const ListStaffPage(),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
                               ),
-                              _dashboardTile(
-                                title: 'Total Alumni',
-                                count: '320',
-                                icon: Icons.school,
-                                color: const Color(0xFF16A34A),
-                                onTap: () {},
+
+                              StreamBuilder<QuerySnapshot>(
+                                stream: FirebaseFirestore.instance
+                                    .collection('alumni')
+                                    .where('hodEmail', isEqualTo: email)
+                                    .snapshots(),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return _dashboardTile(
+                                      title: 'Total Alumni',
+                                      count: '0',
+                                      icon: Icons.school,
+                                      color: const Color(0xFF16A34A),
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                const ListAlumniPage(),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }
+
+                                  final count = snapshot.data!.docs.length
+                                      .toString();
+
+                                  return _dashboardTile(
+                                    title: 'Total Alumni',
+                                    count: count,
+                                    icon: Icons.school,
+                                    color: const Color(0xFF16A34A),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              const ListAlumniPage(),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
                               ),
-                              _dashboardTile(
-                                title: 'Final Year Students',
-                                count: '120',
-                                icon: Icons.person_outline,
-                                color: const Color(0xFFF97316),
-                                onTap: () {},
+                              StreamBuilder<QuerySnapshot>(
+                                stream: FirebaseFirestore.instance
+                                    .collection('students')
+                                    .where('hodEmail', isEqualTo: email)
+                                    .snapshots(),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return _dashboardTile(
+                                      title: 'Total Final Year Students',
+                                      count: '0',
+                                      icon: Icons.person_outline,
+                                      color: const Color(0xFFF97316),
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                const ListStaffPage(),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }
+
+                                  final count = snapshot.data!.docs.length
+                                      .toString();
+
+                                  return _dashboardTile(
+                                    title: 'Total Final Year Students',
+                                    count: count,
+                                    icon: Icons.person_outline,
+                                    color: const Color(0xFFF97316),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const ListStaffPage(),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
                               ),
                             ],
                           );
@@ -164,26 +279,25 @@ class HodDashboard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: Colors.white, size: 40),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  count,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: 14, color: Colors.white70),
-                ),
-              ],
+            Icon(icon, color: Colors.white, size: 34),
+            const Spacer(),
+            Text(
+              count,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 13, color: Colors.white70),
             ),
           ],
         ),
