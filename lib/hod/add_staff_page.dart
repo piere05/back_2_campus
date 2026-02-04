@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'hod_layout.dart';
+import 'list_staff_page.dart';
 
 class AddStaffPage extends StatefulWidget {
   final DocumentSnapshot? staffDoc;
@@ -147,7 +148,10 @@ class _AddStaffPageState extends State<AddStaffPage> {
             .update(staffData);
       }
 
-      Navigator.pop(context);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const ListStaffPage()),
+      );
     } catch (e) {
       ScaffoldMessenger.of(
         context,
