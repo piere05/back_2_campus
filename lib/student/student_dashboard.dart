@@ -17,7 +17,7 @@ class StudentDashboard extends StatefulWidget {
 class _StudentDashboardState extends State<StudentDashboard> {
   String studentName = '';
   String department = '';
-  bool loading = true;
+  bool loading = false;
 
   final String loggedInEmail = FirebaseAuth.instance.currentUser!.email!;
 
@@ -83,6 +83,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                             stream: FirebaseFirestore.instance
                                 .collection('job_internships')
                                 .where('department', isEqualTo: department)
+                                .where('status', isEqualTo: 'ongoing')
                                 .snapshots(),
                             builder: (context, snap) {
                               final count = snap.hasData

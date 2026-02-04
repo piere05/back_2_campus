@@ -19,7 +19,9 @@ class StudentNotificationPage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10),
-          NotificationBody(),
+
+          /// ✅ FIX: give NotificationBody bounded height
+          Expanded(child: NotificationBody()),
         ],
       ),
     );

@@ -4,24 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'student_layout.dart';
-import 'student_job_internship_view_page.dart';
+import 'alumni_layout.dart';
+import 'alumni_job_internship_view_page.dart';
 
-class StudentInterestedJobInternshipPage extends StatefulWidget {
-  const StudentInterestedJobInternshipPage({super.key});
+class AlumniInterestedJobInternshipPage extends StatefulWidget {
+  const AlumniInterestedJobInternshipPage({super.key});
 
   @override
-  State<StudentInterestedJobInternshipPage> createState() =>
-      _StudentInterestedJobInternshipPageState();
+  State<AlumniInterestedJobInternshipPage> createState() =>
+      _AlumniInterestedJobInternshipPageState();
 }
 
-class _StudentInterestedJobInternshipPageState
-    extends State<StudentInterestedJobInternshipPage> {
+class _AlumniInterestedJobInternshipPageState
+    extends State<AlumniInterestedJobInternshipPage> {
   final String email = FirebaseAuth.instance.currentUser!.email!;
   bool loading = true;
   String search = '';
 
-  /// We store the REAL job documents
   List<QueryDocumentSnapshot> jobDocs = [];
 
   @override
@@ -72,7 +71,7 @@ class _StudentInterestedJobInternshipPageState
 
   @override
   Widget build(BuildContext context) {
-    return StudentLayout(
+    return AlumniLayout(
       child: loading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -162,7 +161,7 @@ class _StudentInterestedJobInternshipPageState
                                               context,
                                               MaterialPageRoute(
                                                 builder: (_) =>
-                                                    StudentJobInternshipViewPage(
+                                                    AlumniJobInternshipViewPage(
                                                       jobId: d.id,
                                                       jobData: data,
                                                     ),

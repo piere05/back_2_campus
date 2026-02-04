@@ -2,24 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'student_layout.dart';
-import 'student_job_internship_view_page.dart';
+import 'alumni_layout.dart';
+import 'alumni_job_internship_view_page.dart';
 
-class StudentJobInternshipListPage extends StatefulWidget {
-  const StudentJobInternshipListPage({super.key});
+class AlumniJobInternshipListPage extends StatefulWidget {
+  const AlumniJobInternshipListPage({super.key});
 
   @override
-  State<StudentJobInternshipListPage> createState() =>
-      _StudentJobInternshipListPageState();
+  State<AlumniJobInternshipListPage> createState() =>
+      _AlumniJobInternshipListPageState();
 }
 
-class _StudentJobInternshipListPageState
-    extends State<StudentJobInternshipListPage> {
+class _AlumniJobInternshipListPageState
+    extends State<AlumniJobInternshipListPage> {
   String department = '';
   String search = '';
   bool loading = true;
 
-  final email = FirebaseAuth.instance.currentUser!.email!;
+  final String email = FirebaseAuth.instance.currentUser!.email!;
 
   @override
   void initState() {
@@ -27,9 +27,10 @@ class _StudentJobInternshipListPageState
     loadDepartment();
   }
 
+  // 🔹 FETCH ALUMNI DEPARTMENT
   Future<void> loadDepartment() async {
     final snap = await FirebaseFirestore.instance
-        .collection('students')
+        .collection('alumni')
         .where('email', isEqualTo: email)
         .limit(1)
         .get();
@@ -37,6 +38,7 @@ class _StudentJobInternshipListPageState
     if (snap.docs.isNotEmpty) {
       department = (snap.docs.first['department'] ?? '').toString();
     }
+
     setState(() => loading = false);
   }
 
@@ -49,7 +51,7 @@ class _StudentJobInternshipListPageState
 
   @override
   Widget build(BuildContext context) {
-    return StudentLayout(
+    return AlumniLayout(
       child: loading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -68,6 +70,7 @@ class _StudentJobInternshipListPageState
                   onChanged: (v) => setState(() => search = v),
                 ),
                 const SizedBox(height: 12),
+
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
@@ -82,8 +85,16 @@ class _StudentJobInternshipListPageState
                         );
                       }
 
+                      // 🔥 FILTER OWN JOBS + SEARCH LOCALLY
                       final docs = snap.data!.docs.where((d) {
-                        return matchesSearch(d.data() as Map<String, dynamic>);
+                        final data = d.data() as Map<String, dynamic>;
+
+                        // ❌ EXCLUDE JOBS POSTED BY SAME ALUMNI
+                        if ((data['created_email'] ?? '') == email) {
+                          return false;
+                        }
+
+                        return matchesSearch(data);
                       }).toList();
 
                       if (docs.isEmpty) {
@@ -102,7 +113,7 @@ class _StudentJobInternshipListPageState
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => StudentJobInternshipViewPage(
+                                  builder: (_) => AlumniJobInternshipViewPage(
                                     jobId: d.id,
                                     jobData: data,
                                   ),

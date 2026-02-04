@@ -14,27 +14,26 @@ import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:open_filex/open_filex.dart';
 
-import 'student_layout.dart';
+import 'alumni_layout.dart';
 
-class StudentProfilePage extends StatefulWidget {
-  const StudentProfilePage({super.key});
+class AlumniProfilePage extends StatefulWidget {
+  const AlumniProfilePage({super.key});
 
   @override
-  State<StudentProfilePage> createState() => _StudentProfilePageState();
+  State<AlumniProfilePage> createState() => _AlumniProfilePageState();
 }
 
-class _StudentProfilePageState extends State<StudentProfilePage> {
+class _AlumniProfilePageState extends State<AlumniProfilePage> {
   final _formKey = GlobalKey<FormState>();
 
   final nameCtrl = TextEditingController();
   final emailCtrl = TextEditingController();
   final contactCtrl = TextEditingController();
-  final fromYearCtrl = TextEditingController();
-  final toYearCtrl = TextEditingController();
   final departmentCtrl = TextEditingController();
+  final hodCtrl = TextEditingController();
 
-  String? profileImage; // base64
-  String? resumeBase64; // base64 pdf
+  String? profileImage;
+  String? resumeBase64;
   String? docId;
   bool loading = true;
 
@@ -51,16 +50,15 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
     nameCtrl.dispose();
     emailCtrl.dispose();
     contactCtrl.dispose();
-    fromYearCtrl.dispose();
-    toYearCtrl.dispose();
     departmentCtrl.dispose();
+    hodCtrl.dispose();
     super.dispose();
   }
 
   // ================= LOAD PROFILE =================
   Future<void> loadProfile() async {
     final snap = await FirebaseFirestore.instance
-        .collection('students')
+        .collection('alumni')
         .where('email', isEqualTo: loggedInEmail)
         .limit(1)
         .get();
@@ -75,9 +73,8 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
       nameCtrl.text = data['name'] ?? '';
       emailCtrl.text = data['email'] ?? '';
       contactCtrl.text = data['contact'] ?? '';
-      fromYearCtrl.text = data['fromYear'] ?? '';
-      toYearCtrl.text = data['toYear'] ?? '';
       departmentCtrl.text = data['department'] ?? '';
+      hodCtrl.text = data['hod'] ?? '';
       profileImage = data['profileImage'];
       resumeBase64 = data['resume'];
     }
@@ -91,9 +88,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
     if (img == null || !mounted) return;
 
     final bytes = await img.readAsBytes();
-    setState(() {
-      profileImage = base64Encode(bytes);
-    });
+    setState(() => profileImage = base64Encode(bytes));
   }
 
   // ================= PICK RESUME =================
@@ -108,7 +103,6 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
 
     final bytes = result.files.single.bytes!;
 
-    // 🔴 Firestore HARD LIMIT (1MB)
     if (bytes.length > 1024 * 1024) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -119,25 +113,21 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
       return;
     }
 
-    setState(() {
-      resumeBase64 = base64Encode(bytes);
-    });
+    setState(() => resumeBase64 = base64Encode(bytes));
   }
 
-  // ================= VIEW RESUME (SAME AS INTERESTED USERS PAGE) =================
+  // ================= VIEW RESUME (SAME LOGIC AS HOD PAGE) =================
   Future<void> viewResume() async {
     if (resumeBase64 == null) return;
 
     final bytes = base64Decode(resumeBase64!);
 
-    // 🌐 WEB → FORCE OPEN / DOWNLOAD
     if (kIsWeb) {
       final uri = Uri.dataFromBytes(bytes, mimeType: 'application/pdf');
       await launchUrl(uri, mode: LaunchMode.externalApplication);
       return;
     }
 
-    // 📱 ANDROID / DESKTOP → SYSTEM PDF VIEWER
     final dir = await getTemporaryDirectory();
     final file = File('${dir.path}/resume.pdf');
     await file.writeAsBytes(bytes, flush: true);
@@ -149,11 +139,9 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
   Future<void> updateProfile() async {
     if (!_formKey.currentState!.validate() || docId == null) return;
 
-    await FirebaseFirestore.instance.collection('students').doc(docId).update({
+    await FirebaseFirestore.instance.collection('alumni').doc(docId).update({
       'name': nameCtrl.text.trim(),
       'contact': contactCtrl.text.trim(),
-      'fromYear': fromYearCtrl.text.trim(),
-      'toYear': toYearCtrl.text.trim(),
       'profileImage': profileImage,
       'resume': resumeBase64,
     });
@@ -176,7 +164,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
       imageBytes = base64Decode(profileImage!);
     }
 
-    return StudentLayout(
+    return AlumniLayout(
       child: loading
           ? const Center(child: CircularProgressIndicator())
           : Form(
@@ -186,7 +174,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Student Profile',
+                      'Alumni Profile',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -221,9 +209,8 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
                     _field(nameCtrl, 'Name'),
                     _field(emailCtrl, 'Email', enabled: false),
                     _field(contactCtrl, 'Contact Number'),
-                    _field(fromYearCtrl, 'From Year'),
-                    _field(toYearCtrl, 'To Year'),
                     _field(departmentCtrl, 'Department', enabled: false),
+                    _field(hodCtrl, 'HOD', enabled: false),
 
                     const SizedBox(height: 10),
 
@@ -289,7 +276,9 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
       child: TextFormField(
         controller: ctrl,
         enabled: enabled,
-        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+        validator: enabled
+            ? (v) => v == null || v.isEmpty ? 'Required' : null
+            : null,
         decoration: InputDecoration(
           labelText: label,
           filled: true,

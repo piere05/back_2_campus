@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import '../notification_page.dart';
-import 'staff_layout.dart';
+import 'alumni_layout.dart';
 
-class StaffNotificationPage extends StatelessWidget {
-  const StaffNotificationPage({super.key});
+class AlumniNotificationPage extends StatelessWidget {
+  const AlumniNotificationPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return StaffLayout(
+    return AlumniLayout(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: const [
@@ -20,7 +20,7 @@ class StaffNotificationPage extends StatelessWidget {
           ),
           SizedBox(height: 10),
 
-          /// ✅ FIX: bounded height for scrollable widget
+          /// ✅ FIX: give scrollable widget bounded height
           Expanded(child: NotificationBody()),
         ],
       ),

@@ -103,7 +103,7 @@ class HodDashboard extends StatelessWidget {
                                   crossAxisCount: crossAxisCount,
                                   crossAxisSpacing: 16,
                                   mainAxisSpacing: 16,
-                                  childAspectRatio: 1.6,
+                                  childAspectRatio: 1.3,
                                 ),
 
                             children: [
@@ -203,7 +203,7 @@ class HodDashboard extends StatelessWidget {
                                 builder: (context, snapshot) {
                                   if (!snapshot.hasData) {
                                     return _dashboardTile(
-                                      title: 'Total Final Year Students',
+                                      title: 'Final Year Students',
                                       count: '0',
                                       icon: Icons.person_outline,
                                       color: const Color(0xFFF97316),
@@ -223,7 +223,7 @@ class HodDashboard extends StatelessWidget {
                                       .toString();
 
                                   return _dashboardTile(
-                                    title: 'Total Final Year Students',
+                                    title: 'Final Year Students',
                                     count: count,
                                     icon: Icons.person_outline,
                                     color: const Color(0xFFF97316),

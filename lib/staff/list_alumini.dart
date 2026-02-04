@@ -28,6 +28,9 @@ class _StaffViewAlumniTablePageState extends State<StaffViewAlumniTablePage> {
 
   final TextEditingController searchCtrl = TextEditingController();
 
+  final ScrollController _xScroll = ScrollController();
+  final ScrollController _yScroll = ScrollController();
+
   List<Map<String, dynamic>> alumniList = [];
   List<Map<String, dynamic>> filteredList = [];
 
@@ -40,6 +43,8 @@ class _StaffViewAlumniTablePageState extends State<StaffViewAlumniTablePage> {
   @override
   void dispose() {
     searchCtrl.dispose();
+    _xScroll.dispose();
+    _yScroll.dispose();
     super.dispose();
   }
 
@@ -98,7 +103,7 @@ class _StaffViewAlumniTablePageState extends State<StaffViewAlumniTablePage> {
     });
   }
 
-  // ================= PDF (WEB SAFE) =================
+  // ================= PDF =================
   Future<void> _exportPdf() async {
     final pdf = pw.Document();
 
@@ -134,12 +139,9 @@ class _StaffViewAlumniTablePageState extends State<StaffViewAlumniTablePage> {
 
     final Uint8List bytes = await pdf.save();
 
-    // ✅ THIS IS THE IMPORTANT PART
     if (kIsWeb) {
-      // WEB → open in new tab (no platform channel crash)
       await Printing.layoutPdf(onLayout: (format) async => bytes);
     } else {
-      // MOBILE
       await Printing.sharePdf(bytes: bytes, filename: 'alumni_list.pdf');
     }
   }
@@ -153,7 +155,6 @@ class _StaffViewAlumniTablePageState extends State<StaffViewAlumniTablePage> {
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // HEADER
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
@@ -174,10 +175,7 @@ class _StaffViewAlumniTablePageState extends State<StaffViewAlumniTablePage> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 12),
-
-                // SEARCH
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: TextField(
@@ -194,9 +192,7 @@ class _StaffViewAlumniTablePageState extends State<StaffViewAlumniTablePage> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 12),
-
                 filteredList.isEmpty
                     ? const Center(
                         child: Padding(
@@ -210,35 +206,49 @@ class _StaffViewAlumniTablePageState extends State<StaffViewAlumniTablePage> {
     );
   }
 
-  // ================= FULL WIDTH TABLE =================
+  // ================= TABLE WITH X SCROLL =================
   Widget _table() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          child: DataTable(
-            columnSpacing: constraints.maxWidth / 10,
-            headingRowColor: MaterialStateProperty.all(Colors.grey.shade200),
-            columns: const [
-              DataColumn(label: Text('Name')),
-              DataColumn(label: Text('Contact')),
-              DataColumn(label: Text('Email')),
-              DataColumn(label: Text('Batch')),
-            ],
-            rows: filteredList.map((a) {
-              return DataRow(
-                cells: [
-                  DataCell(Text(a['name']?.toString() ?? '')),
-                  DataCell(Text(a['contact']?.toString() ?? '')),
-                  DataCell(Text(a['email']?.toString() ?? '')),
-                  DataCell(
-                    Text('${a['from_year'] ?? ''} - ${a['to_year'] ?? ''}'),
-                  ),
+    return Scrollbar(
+      controller: _xScroll,
+      thumbVisibility: true,
+      notificationPredicate: (n) => n.metrics.axis == Axis.horizontal,
+      child: SingleChildScrollView(
+        controller: _xScroll,
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          width: 900, // 👈 forces horizontal scroll on small screens
+          child: Scrollbar(
+            controller: _yScroll,
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+              controller: _yScroll,
+              child: DataTable(
+                headingRowColor: MaterialStateProperty.all(
+                  Colors.grey.shade200,
+                ),
+                columns: const [
+                  DataColumn(label: Text('Name')),
+                  DataColumn(label: Text('Contact')),
+                  DataColumn(label: Text('Email')),
+                  DataColumn(label: Text('Batch')),
                 ],
-              );
-            }).toList(),
+                rows: filteredList.map((a) {
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(a['name']?.toString() ?? '')),
+                      DataCell(Text(a['contact']?.toString() ?? '')),
+                      DataCell(Text(a['email']?.toString() ?? '')),
+                      DataCell(
+                        Text('${a['from_year'] ?? ''} - ${a['to_year'] ?? ''}'),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

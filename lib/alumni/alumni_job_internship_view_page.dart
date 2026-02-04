@@ -6,25 +6,25 @@ import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'student_layout.dart';
+import 'alumni_layout.dart';
 
-class StudentJobInternshipViewPage extends StatefulWidget {
+class AlumniJobInternshipViewPage extends StatefulWidget {
   final String jobId;
   final Map<String, dynamic> jobData;
 
-  const StudentJobInternshipViewPage({
+  const AlumniJobInternshipViewPage({
     super.key,
     required this.jobId,
     required this.jobData,
   });
 
   @override
-  State<StudentJobInternshipViewPage> createState() =>
-      _StudentJobInternshipViewPageState();
+  State<AlumniJobInternshipViewPage> createState() =>
+      _AlumniJobInternshipViewPageState();
 }
 
-class _StudentJobInternshipViewPageState
-    extends State<StudentJobInternshipViewPage> {
+class _AlumniJobInternshipViewPageState
+    extends State<AlumniJobInternshipViewPage> {
   bool interested = false;
 
   final ScrollController _scrollController = ScrollController();
@@ -41,6 +41,7 @@ class _StudentJobInternshipViewPageState
     super.dispose();
   }
 
+  // ================= CHECK INTEREST =================
   Future<void> checkInterest() async {
     final email = FirebaseAuth.instance.currentUser!.email!;
     final snap = await FirebaseFirestore.instance
@@ -56,24 +57,26 @@ class _StudentJobInternshipViewPageState
     }
   }
 
+  // ================= ADD INTEREST =================
   Future<void> addInterest() async {
     if (interested) return;
 
     final email = FirebaseAuth.instance.currentUser!.email!;
-    final student = await FirebaseFirestore.instance
-        .collection('students')
+
+    final alumni = await FirebaseFirestore.instance
+        .collection('alumni')
         .where('email', isEqualTo: email)
         .limit(1)
         .get();
 
-    final name = (student.docs.first['name'] ?? '').toString();
+    final name = (alumni.docs.first['name'] ?? '').toString();
 
     await FirebaseFirestore.instance
         .collection('job_internships')
         .doc(widget.jobId)
         .collection('interested')
         .add({
-          'type': 'STUDENT',
+          'type': 'ALUMNI',
           'email': email,
           'name': name,
           'timestamp': FieldValue.serverTimestamp(),
@@ -95,7 +98,7 @@ class _StudentJobInternshipViewPageState
     final String contact = (widget.jobData['contact'] ?? '').toString();
     final String? img = widget.jobData['image_base64'];
 
-    return StudentLayout(
+    return AlumniLayout(
       child: CupertinoScrollbar(
         controller: _scrollController,
         thumbVisibility: true,
@@ -116,6 +119,7 @@ class _StudentJobInternshipViewPageState
                   ),
                 ),
               const SizedBox(height: 16),
+
               Text(
                 role,
                 style: const TextStyle(
@@ -123,7 +127,9 @@ class _StudentJobInternshipViewPageState
                   fontWeight: FontWeight.w600,
                 ),
               ),
+
               const SizedBox(height: 6),
+
               Row(
                 children: [
                   const Icon(Icons.badge, size: 18, color: Color(0xFF2563EB)),
@@ -131,7 +137,9 @@ class _StudentJobInternshipViewPageState
                   Text(title),
                 ],
               ),
+
               const SizedBox(height: 6),
+
               Row(
                 children: [
                   const Icon(
@@ -143,21 +151,26 @@ class _StudentJobInternshipViewPageState
                   Text(company),
                 ],
               ),
+
               const SizedBox(height: 16),
+
               const Text(
                 'DESCRIPTION',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 6),
               Text(description),
+
               const SizedBox(height: 8),
+
               Text(
                 "Contact: " + contact,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
+
               const SizedBox(height: 24),
 
-              // 🔥 SAFE ANIMATED BUTTON
+              // 🔥 SAME ANIMATED BUTTON
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,

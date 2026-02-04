@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'hod_layout.dart';
 import 'list_sponsorship.dart';
@@ -19,16 +20,36 @@ class _AddEditSponsorshipPageState extends State<AddEditSponsorshipPage> {
 
   final titleCtrl = TextEditingController();
   final descCtrl = TextEditingController();
-  final postCtrl = TextEditingController();
+
+  String? hodEmail;
+  String? department;
 
   @override
   void initState() {
     super.initState();
+
     final d = widget.data;
     if (d != null) {
       titleCtrl.text = d['title'] ?? '';
       descCtrl.text = d['description'] ?? '';
     }
+
+    _loadHodData();
+  }
+
+  Future<void> _loadHodData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final snap = await FirebaseFirestore.instance
+        .collection('hod')
+        .where('email', isEqualTo: user.email)
+        .limit(1)
+        .get();
+
+    if (snap.docs.isEmpty) return;
+    hodEmail = snap.docs.first['email'];
+    department = snap.docs.first['department'];
   }
 
   Future<void> save() async {
@@ -39,6 +60,8 @@ class _AddEditSponsorshipPageState extends State<AddEditSponsorshipPage> {
     final payload = {
       'title': titleCtrl.text.trim(),
       'description': descCtrl.text.trim(),
+      'department': department,
+      'hodEmail': hodEmail,
       'updated_at': Timestamp.now(),
     };
 

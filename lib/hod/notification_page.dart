@@ -19,7 +19,9 @@ class HodNotificationPage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10),
-          NotificationBody(),
+
+          /// ✅ THIS IS THE FIX
+          Expanded(child: NotificationBody()),
         ],
       ),
     );
